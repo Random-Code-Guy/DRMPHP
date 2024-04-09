@@ -37,7 +37,7 @@ done
 # Download Panel
 cd /home;
 apt install git -y;
-git clone https://github.com/DRM-Scripts/DRMPHP;
+git clone https://github.com/Random-Code-Guy/DRMPHP;
 
 echo "####################################################";
 echo "# INSTALL STEP 2: MYSQL, SHORTTAGS, FFMPEG & PANEL #";
