@@ -1,30 +1,47 @@
 <?php
 include "_config.php";
-if(!$App->LoggedIn())header('location: login.php');
-$Err1="";
-$Err2="";
-if(isset($_POST["Save"]) && $_POST["Save"]==1){
-  $ChanID=$App->SaveChannel($_POST);
-  $Data=$App->GetChannel($ChanID);
-  $AudioIDs = explode(",", $Data["AudioID"]);
-  if(isset($_POST["SaveRestart"]) && $_POST["SaveRestart"] == "Save & Restart"){
-    $App->StopDownload(array("ChanID" => $ChanID));
-    $App->StartDownload(array("ChanID" => $ChanID));
-  }
-}else{
-  $ChanID = intval($_POST["ID"]);
-  if($ChanID == 0){
-    $ChanID = intval($_GET["id"]);
-  }
-  if($ChanID > 0){
-    $Data=$App->GetChannel($ChanID);
+
+// Redirect to login page if user is not logged in
+if (!$App->LoggedIn()) {
+    header('location: login.php');
+    exit(); // Stop further execution
+}
+
+$Err1 = "";
+$Err2 = "";
+
+if (isset($_POST["Save"]) && $_POST["Save"] == 1) {
+    // Save channel data
+    $ChanID = $App->SaveChannel($_POST);
+    $Data = $App->GetChannel($ChanID);
     $AudioIDs = explode(",", $Data["AudioID"]);
-  }else{
-    $Data=$_POST;
-    $AudioIDs = $_POST["AudioIDs"];
-  }
+
+    // Check if "Save & Restart" option is selected
+    if (isset($_POST["SaveRestart"]) && $_POST["SaveRestart"] == "Save & Restart") {
+        // Stop and then start the download process for the channel
+        $App->StopDownload(["ChanID" => $ChanID]);
+        $App->StartDownload(["ChanID" => $ChanID]);
+    }
+} else {
+    $ChanID = intval($_POST["ID"]);
+
+    // If ChanID is not provided via POST, attempt to get it from GET
+    if ($ChanID == 0) {
+        $ChanID = intval($_GET["id"]);
+    }
+
+    // Fetch channel data based on ChanID
+    if ($ChanID > 0) {
+        $Data = $App->GetChannel($ChanID);
+        $AudioIDs = explode(",", $Data["AudioID"]);
+    } else {
+        // If ChanID is still not available, use POST data
+        $Data = $_POST;
+        $AudioIDs = $_POST["AudioIDs"];
+    }
 }
 ?>
+
 <!doctype html>
 <html lang="en">
 <?php include "_htmlhead.php"?>
