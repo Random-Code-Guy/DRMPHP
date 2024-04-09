@@ -31,7 +31,7 @@ apt-get install php7.2 php7.2-cli php7.2-json php7.2-common php7.2-mysql php7.2-
 # Download Panel
 cd /home;
 apt install git -y;
-git clone https://github.com/DRM-Scripts/DRMPHP;
+git clone https://github.com/Random-Code-Guy/DRMPHP;
 
 echo "####################################################";
 echo "# INSTALL STEP 2: MYSQL, SHORTTAGS, FFMPEG & PANEL #";
