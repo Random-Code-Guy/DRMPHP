@@ -1,61 +1,42 @@
 <?php
-
 include "_config.php";
-include "_db.php";
 
-try {
-    $db = new PDO('mysql:host='.$DBHost.';dbname='.$DBName.';charset=utf8', $DBUser, $DBPass);
-    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    print "Error!: " . $e->getMessage() . "<br/>";
-    die();
+// Redirect to login page if user is not logged in
+if (!$App->LoggedIn()) {
+    header('location: login.php');
+    exit(); // Stop further execution
 }
 
-// Fetch all lines from the database
-$lines = $db->query("SELECT * FROM `lines`")->fetchAll(PDO::FETCH_ASSOC);
-
-// Display error message if the database connection is not available
-$db ??= null;
-if ($db === null) {
-    echo 'Failed to establish a database connection.';
-    exit;
-}
+$error_message = "";
 
 // Process form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = $_POST['username'];
-    $password = $_POST['password'];
-    $expire_date = $_POST['expire_date'];
+    // Retrieve form data or generate random values if not provided
+    $username = isset($_POST['username']) ? $_POST['username'] : $App->generateRandomString(15);
+    $password = isset($_POST['password']) ? $_POST['password'] : $App->generateRandomString(15);
+    $expire_date = isset($_POST['expire_date']) ? $_POST['expire_date'] : null;
 
-    // Generate random username and password if empty
-    if (empty($username)) {
-        $username = generateRandomString(15);
+    // Validate form data
+    if (!empty($username) && !empty($password) && !empty($expire_date)) {
+        // Insert new line into the database
+        $inserted = $App->insertLine($username, $password, $expire_date);
+
+        if ($inserted) {
+            // Redirect to lines.php after adding the line
+            header("Location: lines.php");
+            exit;
+        } else {
+            // Handle insertion failure
+            // You can log errors or display an error message to the user
+            $error_message = "Failed to insert line into the database.";
+        }
+    } else {
+        // Handle missing or empty fields
+        $error_message = "Please fill in all required fields.";
     }
-    if (empty($password)) {
-        $password = generateRandomString(15);
-    }
-
-    // Insert new line into the database
-    $stmt = $db->prepare("INSERT INTO `lines` (`username`, `password`, `expire_date`) VALUES (?, ?, ?)");
-    $stmt->execute([$username, $password, $expire_date]);
-
-    // Redirect to lines.php after adding the line
-    header("Location: lines.php");
-    exit;
 }
 
-// Function to generate a random string of alphanumeric characters
-function generateRandomString($length) {
-    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    $charactersLength = strlen($characters);
-    $randomString = '';
-    for ($i = 0; $i < $length; $i++) {
-        $randomString .= $characters[rand(0, $charactersLength - 1)];
-    }
-    return $randomString;
-}
 ?>
-
 <!doctype html>
 <html lang="en">
 <?php include "_htmlhead.php"?>
@@ -90,7 +71,7 @@ function generateRandomString($length) {
                         <div class="card">
                             <div class="card-body">
                                 <h4 class="card-title mb-4">Add Line</h4>
-
+                                <?php echo $error_message ?>
                                 <div class="form-container">
                                     <form action="" method="POST">
                                         <div class="mb-3">
