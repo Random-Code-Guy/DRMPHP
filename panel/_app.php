@@ -1292,4 +1292,37 @@ class App {
         return $users;
     }
 
+    public function insertLine($username, $password, $expire_date) {
+        try {
+            $stmt = $this->db->prepare("INSERT INTO `lines` (`username`, `password`, `expire_date`) VALUES (?, ?, ?)");
+            $stmt->execute([$username, $password, $expire_date]);
+            return true; // Return true if insertion is successful
+        } catch (PDOException $e) {
+            // Handle the exception (e.g., log error, return false)
+            error_log('Error inserting line: ' . $e->getMessage());
+            return false; // Return false if insertion fails
+        }
+    }
+    
+    public function generateRandomString($length) {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+
+        // Use a more secure random number generator
+        if (function_exists('random_int')) {
+            for ($i = 0; $i < $length; $i++) {
+                $randomString .= $characters[random_int(0, $charactersLength - 1)];
+            }
+        } else {
+            // Fallback to mt_rand if random_int is not available (PHP 7+)
+            for ($i = 0; $i < $length; $i++) {
+                $randomString .= $characters[mt_rand(0, $charactersLength - 1)];
+            }
+        }
+
+        return $randomString;
+    }
+
+
 }
