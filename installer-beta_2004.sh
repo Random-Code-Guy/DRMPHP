@@ -49,7 +49,7 @@ apt-get install php7.4 php7.4-cli php7.4-json php7.4-common php7.4-mysql php7.4-
 
 # Download Panel
 cd /home;
-git clone https://github.com/DRM-Scripts/DRMPHP;
+git clone https://github.com/Random-Code-Guy/DRMPHP;
 
 echo "####################################################";
 echo "# INSTALL STEP 2: MYSQL, SHORTTAGS, FFMPEG & PANEL #";
